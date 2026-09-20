@@ -1,0 +1,167 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 1182" width="1280" height="1182">
+  <style>    text { font-family: 'Helvetica Neue', Helvetica, Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif; }  </style>
+  <defs>
+    <marker id="m-gray" markerWidth="9" markerHeight="7" refX="8.5" refY="3.5" orient="auto"><polygon points="0 0, 9 3.5, 0 7" fill="#6b7280"/></marker>
+    <marker id="m-green" markerWidth="9" markerHeight="7" refX="8.5" refY="3.5" orient="auto"><polygon points="0 0, 9 3.5, 0 7" fill="#16a34a"/></marker>
+    <marker id="m-purple" markerWidth="9" markerHeight="7" refX="8.5" refY="3.5" orient="auto"><polygon points="0 0, 9 3.5, 0 7" fill="#7c3aed"/></marker>
+    <marker id="m-blue" markerWidth="9" markerHeight="7" refX="8.5" refY="3.5" orient="auto"><polygon points="0 0, 9 3.5, 0 7" fill="#2563eb"/></marker>
+    <marker id="m-red" markerWidth="9" markerHeight="7" refX="8.5" refY="3.5" orient="auto"><polygon points="0 0, 9 3.5, 0 7" fill="#dc2626"/></marker>
+    <marker id="m-orange" markerWidth="9" markerHeight="7" refX="8.5" refY="3.5" orient="auto"><polygon points="0 0, 9 3.5, 0 7" fill="#ea580c"/></marker>
+  </defs>
+  <rect data-graph-role="background" width="1280" height="1182" fill="#ffffff"/>
+  <text x="24" y="42" font-size="19" font-weight="600" fill="#111827">单次 reconcile(binding_id) 的严格执行顺序 · CAS 关口 · 竞争与崩溃窗口</text>
+  <text x="24" y="66" font-size="12.5" fill="#6b7280">场景：Binding rev 8 已有旧部署 A（PRESENT），本次要替换为新目标 B</text>
+  <rect data-graph-role="container" x="20" y="176" width="980" height="280" rx="8" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1.4"/>
+  <rect data-graph-role="label" x="20" y="165" width="326" height="22" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1.4"/>
+  <text x="30" y="180" font-size="11.5" font-weight="600" fill="#374151">① 读取 → 认领 → 翻译 → 准备（此段无任何目标副作用）</text>
+  <rect data-graph-role="container" x="20" y="474" width="980" height="200" rx="8" fill="#fef2f2" stroke="#fecaca" stroke-width="1.4"/>
+  <rect data-graph-role="label" x="20" y="463" width="241" height="22" rx="6" fill="#ffffff" stroke="#fecaca" stroke-width="1.4"/>
+  <text x="30" y="478" font-size="11.5" font-weight="600" fill="#b91c1c">② 关键窗口：先登记落库，才允许调用目标</text>
+  <rect data-graph-role="container" x="20" y="692" width="980" height="92" rx="8" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1.4"/>
+  <rect data-graph-role="label" x="20" y="681" width="229" height="22" rx="6" fill="#ffffff" stroke="#bbf7d0" stroke-width="1.4"/>
+  <text x="30" y="696" font-size="11.5" font-weight="600" fill="#15803d">③ 结果记账：先合并观察，再判生命周期</text>
+  <rect data-graph-role="container" x="20" y="802" width="980" height="206" rx="8" fill="#fff7ed" stroke="#fed7aa" stroke-width="1.4"/>
+  <rect data-graph-role="label" x="20" y="791" width="298" height="22" rx="6" fill="#ffffff" stroke="#fed7aa" stroke-width="1.4"/>
+  <text x="30" y="806" font-size="11.5" font-weight="600" fill="#c2410c">④ 替代结局（alt）：执行期间 PAP 接受了 Delete</text>
+  <line x1="80" y1="140" x2="80" y2="1016" stroke="#9ca3af" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="265" y1="140" x2="265" y2="1016" stroke="#9ca3af" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="455" y1="140" x2="455" y2="1016" stroke="#9ca3af" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="618" y1="140" x2="618" y2="1016" stroke="#9ca3af" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="758" y1="140" x2="758" y2="1016" stroke="#9ca3af" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="912" y1="140" x2="912" y2="1016" stroke="#9ca3af" stroke-width="1" stroke-dasharray="4,4"/>
+  <rect data-graph-role="decoration" data-owner="reconciler" x="258" y="204" width="14" height="570" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1"/>
+  <rect data-graph-role="decoration" data-owner="reconciler" x="258" y="870" width="14" height="132" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1"/>
+  <line x1="265" y1="214" x2="455" y2="214" stroke="#6b7280" stroke-width="1.8" marker-end="url(#m-gray)"/>
+  <rect data-graph-role="label" x="285" y="193" width="151" height="16" rx="3" fill="#ffffff" opacity="0.97"/>
+  <text x="360" y="205" font-size="11" fill="#6b7280" text-anchor="middle">get_binding_state(id)</text>
+  <line x1="455" y1="248" x2="265" y2="248" stroke="#6b7280" stroke-width="1.4" stroke-dasharray="6,4" marker-end="url(#m-gray)"/>
+  <rect data-graph-role="label" x="199" y="227" width="322" height="16" rx="3" fill="#ffffff" opacity="0.97"/>
+  <text x="360" y="239" font-size="11" fill="#6b7280" text-anchor="middle">PENDING_APPLY · rev 8 · deployments=[A:PRESENT]</text>
+  <line x1="265" y1="288" x2="455" y2="288" stroke="#16a34a" stroke-width="1.8" marker-end="url(#m-green)"/>
+  <rect data-graph-role="label" x="219" y="267" width="283" height="16" rx="3" fill="#ffffff" opacity="0.97"/>
+  <text x="360" y="279" font-size="11" fill="#16a34a" text-anchor="middle">CAS claim → APPLYING · attempts_started+1</text>
+  <line x1="265" y1="328" x2="618" y2="328" stroke="#7c3aed" stroke-width="1.8" marker-end="url(#m-purple)"/>
+  <rect data-graph-role="label" x="346" y="307" width="190" height="16" rx="3" fill="#ffffff" opacity="0.97"/>
+  <text x="442" y="319" font-size="11" fill="#7c3aed" text-anchor="middle">translate(&amp;PreparedBinding)</text>
+  <line x1="618" y1="362" x2="265" y2="362" stroke="#7c3aed" stroke-width="1.4" stroke-dasharray="6,4" marker-end="url(#m-purple)"/>
+  <rect data-graph-role="label" x="323" y="341" width="236" height="16" rx="3" fill="#ffffff" opacity="0.97"/>
+  <text x="442" y="353" font-size="11" fill="#7c3aed" text-anchor="middle">TargetBindingPlan{format, content}</text>
+  <line x1="265" y1="402" x2="758" y2="402" stroke="#2563eb" stroke-width="1.8" marker-end="url(#m-blue)"/>
+  <rect data-graph-role="label" x="397" y="381" width="230" height="16" rx="3" fill="#ffffff" opacity="0.97"/>
+  <text x="512" y="393" font-size="11" fill="#2563eb" text-anchor="middle">prepare_apply(plan)  ← 不改目标状态</text>
+  <line x1="758" y1="436" x2="265" y2="436" stroke="#2563eb" stroke-width="1.4" stroke-dasharray="6,4" marker-end="url(#m-blue)"/>
+  <rect data-graph-role="label" x="380" y="415" width="263" height="16" rx="3" fill="#ffffff" opacity="0.97"/>
+  <text x="512" y="427" font-size="11" fill="#2563eb" text-anchor="middle">PreparedApply{target, format, content}</text>
+  <line x1="265" y1="512" x2="455" y2="512" stroke="#dc2626" stroke-width="1.8" marker-end="url(#m-red)"/>
+  <rect data-graph-role="label" x="201" y="491" width="318" height="16" rx="3" fill="#ffffff" opacity="0.97"/>
+  <text x="360" y="503" font-size="11" fill="#dc2626" text-anchor="middle">CAS register：存 prepared，登记 B=UNKNOWN，保留 A</text>
+  <line x1="265" y1="552" x2="758" y2="552" stroke="#2563eb" stroke-width="1.8" marker-end="url(#m-blue)"/>
+  <rect data-graph-role="label" x="400" y="531" width="223" height="16" rx="3" fill="#ffffff" opacity="0.97"/>
+  <text x="512" y="543" font-size="11" fill="#2563eb" text-anchor="middle">update(previous=[A], prepared=B)</text>
+  <line x1="758" y1="586" x2="912" y2="586" stroke="#dc2626" stroke-width="1.8" marker-end="url(#m-red)"/>
+  <rect data-graph-role="label" x="743" y="565" width="184" height="16" rx="3" fill="#ffffff" opacity="0.97"/>
+  <text x="835" y="577" font-size="11" fill="#dc2626" text-anchor="middle">DELETE /bindings/{uuid(A)}</text>
+  <line x1="758" y1="620" x2="912" y2="620" stroke="#dc2626" stroke-width="1.8" marker-end="url(#m-red)"/>
+  <rect data-graph-role="label" x="733" y="599" width="203" height="16" rx="3" fill="#ffffff" opacity="0.97"/>
+  <text x="835" y="611" font-size="11" fill="#dc2626" text-anchor="middle">POST /bindings（原样保存的字节）</text>
+  <line x1="758" y1="654" x2="265" y2="654" stroke="#2563eb" stroke-width="1.4" stroke-dasharray="6,4" marker-end="url(#m-blue)"/>
+  <rect data-graph-role="label" x="383" y="633" width="256" height="16" rx="3" fill="#ffffff" opacity="0.97"/>
+  <text x="512" y="645" font-size="11" fill="#2563eb" text-anchor="middle">DeploymentReport{A:Absent, B:Present}</text>
+  <line x1="265" y1="730" x2="455" y2="730" stroke="#16a34a" stroke-width="1.8" marker-end="url(#m-green)"/>
+  <rect data-graph-role="label" x="246" y="709" width="228" height="16" rx="3" fill="#ffffff" opacity="0.97"/>
+  <text x="360" y="721" font-size="11" fill="#16a34a" text-anchor="middle">CAS finish：合并观察 → 判定 → READY</text>
+  <line x1="455" y1="764" x2="265" y2="764" stroke="#6b7280" stroke-width="1.4" stroke-dasharray="6,4" marker-end="url(#m-gray)"/>
+  <rect data-graph-role="label" x="237" y="743" width="245" height="16" rx="3" fill="#ffffff" opacity="0.97"/>
+  <text x="360" y="755" font-size="11" fill="#6b7280" text-anchor="middle">Applied（matched = true）→ Completed</text>
+  <line x1="80" y1="840" x2="455" y2="840" stroke="#ea580c" stroke-width="1.8" marker-end="url(#m-orange)"/>
+  <rect data-graph-role="label" x="127" y="819" width="280" height="16" rx="3" fill="#ffffff" opacity="0.97"/>
+  <text x="268" y="831" font-size="11" fill="#ea580c" text-anchor="middle">条件写：status = PENDING_DELETE，rev 仍为 8</text>
+  <line x1="265" y1="880" x2="455" y2="880" stroke="#6b7280" stroke-width="1.8" marker-end="url(#m-gray)"/>
+  <rect data-graph-role="label" x="228" y="859" width="265" height="16" rx="3" fill="#ffffff" opacity="0.97"/>
+  <text x="360" y="871" font-size="11" fill="#6b7280" text-anchor="middle">CAS finish（expected: APPLYING, rev 8）</text>
+  <line x1="455" y1="914" x2="265" y2="914" stroke="#6b7280" stroke-width="1.4" stroke-dasharray="6,4" marker-end="url(#m-gray)"/>
+  <rect data-graph-role="label" x="328" y="893" width="65" height="16" rx="3" fill="#ffffff" opacity="0.97"/>
+  <text x="360" y="905" font-size="11" fill="#6b7280" text-anchor="middle">Conflict</text>
+  <line x1="265" y1="954" x2="455" y2="954" stroke="#16a34a" stroke-width="1.8" marker-end="url(#m-green)"/>
+  <rect data-graph-role="label" x="256" y="933" width="208" height="16" rx="3" fill="#ffffff" opacity="0.97"/>
+  <text x="360" y="945" font-size="11" fill="#16a34a" text-anchor="middle">重读 → 只合并目标事实，不写生命周期</text>
+  <line x1="455" y1="988" x2="265" y2="988" stroke="#6b7280" stroke-width="1.4" stroke-dasharray="6,4" marker-end="url(#m-gray)"/>
+  <rect data-graph-role="label" x="231" y="967" width="258" height="16" rx="3" fill="#ffffff" opacity="0.97"/>
+  <text x="360" y="979" font-size="11" fill="#6b7280" text-anchor="middle">Applied（matched = false）→ Superseded</text>
+  <rect data-graph-role="node" x="26" y="96" width="108" height="44" rx="7" fill="#f3f4f6" stroke="#9ca3af" stroke-width="1.5"/>
+  <text x="80" y="123" font-size="12" font-weight="600" fill="#111827" text-anchor="middle">PapService</text>
+  <rect data-graph-role="node" x="180" y="96" width="170" height="44" rx="7" fill="#f3f4f6" stroke="#9ca3af" stroke-width="1.5"/>
+  <text x="265" y="123" font-size="12" font-weight="600" fill="#111827" text-anchor="middle">BindingReconciler</text>
+  <rect data-graph-role="node" x="378" y="96" width="154" height="44" rx="7" fill="#f3f4f6" stroke="#9ca3af" stroke-width="1.5"/>
+  <text x="455" y="123" font-size="12" font-weight="600" fill="#111827" text-anchor="middle">BindingStateRepository</text>
+  <rect data-graph-role="node" x="556" y="96" width="124" height="44" rx="7" fill="#f3f4f6" stroke="#9ca3af" stroke-width="1.5"/>
+  <text x="618" y="123" font-size="12" font-weight="600" fill="#111827" text-anchor="middle">AgentSightAdapter</text>
+  <rect data-graph-role="node" x="700" y="96" width="116" height="44" rx="7" fill="#f3f4f6" stroke="#9ca3af" stroke-width="1.5"/>
+  <text x="758" y="123" font-size="12" font-weight="600" fill="#111827" text-anchor="middle">AgentSightClient</text>
+  <rect data-graph-role="node" x="838" y="96" width="148" height="44" rx="7" fill="#f3f4f6" stroke="#9ca3af" stroke-width="1.5"/>
+  <text x="912" y="123" font-size="12" font-weight="600" fill="#111827" text-anchor="middle">AgentSight / ActPlane</text>
+  <rect data-graph-role="legend" x="1012" y="204" width="244" height="77" rx="7" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1.4"/>
+  <text x="1024" y="221" font-size="11.5" font-weight="600" fill="#374151">① 重读，不信通知</text>
+  <text x="1024" y="238" font-size="10.5" fill="#4b5563">通知只携带 binding_id。执行依据始终是</text>
+  <text x="1024" y="253" font-size="10.5" fill="#4b5563">repository 中的最新意图，不使用通知里</text>
+  <text x="1024" y="268" font-size="10.5" fill="#4b5563">缓存的旧 spec 或固定的 Update/Delete 命令</text>
+  <rect data-graph-role="legend" x="1012" y="294" width="244" height="62" rx="7" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1.4"/>
+  <text x="1024" y="311" font-size="11.5" font-weight="600" fill="#374151">② 预算在副作用前扣减</text>
+  <text x="1024" y="328" font-size="10.5" fill="#4b5563">attempts_started 在 claim 事务内 +1；</text>
+  <text x="1024" y="343" font-size="10.5" fill="#4b5563">claim 后崩溃也计入，避免无限重试</text>
+  <rect data-graph-role="legend" x="1012" y="370" width="244" height="77" rx="7" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.4"/>
+  <text x="1024" y="387" font-size="11.5" font-weight="600" fill="#1d4ed8">③ prepare 零副作用</text>
+  <text x="1024" y="404" font-size="10.5" fill="#4b5563">只做本地校验 / 身份解析 / 序列化。</text>
+  <text x="1024" y="419" font-size="10.5" fill="#4b5563">boot_id 与 /proc start_time 固化进 body，</text>
+  <text x="1024" y="434" font-size="10.5" fill="#4b5563">重试原样回传，不重新读取当前值</text>
+  <rect data-graph-role="legend" x="1012" y="472" width="244" height="107" rx="7" fill="#fef2f2" stroke="#fecaca" stroke-width="1.4"/>
+  <text x="1024" y="489" font-size="11.5" font-weight="600" fill="#b91c1c">④ 登记失败 → 零调用</text>
+  <text x="1024" y="506" font-size="10.5" fill="#4b5563">登记提交失败则不发任何修改请求。</text>
+  <text x="1024" y="521" font-size="10.5" fill="#4b5563">此处崩溃：B 仍为 UNKNOWN，清理责任</text>
+  <text x="1024" y="536" font-size="10.5" fill="#4b5563">已落库；重试复用同一 prepared，不会</text>
+  <text x="1024" y="551" font-size="10.5" fill="#4b5563">重新生成目标身份，也不改请求字节。</text>
+  <text x="1024" y="566" font-size="10.5" fill="#4b5563">prepared / cleanup 对核心是不透明字节</text>
+  <rect data-graph-role="legend" x="1012" y="594" width="244" height="77" rx="7" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.4"/>
+  <text x="1024" y="611" font-size="11.5" font-weight="600" fill="#1d4ed8">⑤ previous 集合的算法</text>
+  <text x="1024" y="628" font-size="10.5" fill="#4b5563">deployments 按 route+id 排除本次目标；</text>
+  <text x="1024" y="643" font-size="10.5" fill="#4b5563">新目标虽已登记 UNKNOWN，也绝不能进</text>
+  <text x="1024" y="658" font-size="10.5" fill="#4b5563">“先删除的旧目标”集合</text>
+  <rect data-graph-role="legend" x="1012" y="688" width="244" height="77" rx="7" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1.4"/>
+  <text x="1024" y="705" font-size="11.5" font-weight="600" fill="#15803d">⑥ READY 的充分条件</text>
+  <text x="1024" y="722" font-size="10.5" fill="#4b5563">prepared.revision == expected.revision</text>
+  <text x="1024" y="737" font-size="10.5" fill="#4b5563">且 deployments 恰好 1 条 == prepared.target</text>
+  <text x="1024" y="752" font-size="10.5" fill="#4b5563">且 presence == PRESENT（旧目标已回收）</text>
+  <rect data-graph-role="legend" x="1012" y="802" width="244" height="107" rx="7" fill="#fff7ed" stroke="#fed7aa" stroke-width="1.4"/>
+  <text x="1024" y="819" font-size="11.5" font-weight="600" fill="#c2410c">⑦ 旧任务只能写目标事实</text>
+  <text x="1024" y="836" font-size="10.5" fill="#4b5563">Delete 不增版，仅比 revision 不够，必须</text>
+  <text x="1024" y="851" font-size="10.5" fill="#4b5563">同时比 expected_status == APPLYING。旧</text>
+  <text x="1024" y="866" font-size="10.5" fill="#4b5563">Apply 即使成功创建了 B，也不能把状态</text>
+  <text x="1024" y="881" font-size="10.5" fill="#4b5563">从 PENDING_DELETE 改回 READY。下一次</text>
+  <text x="1024" y="896" font-size="10.5" fill="#4b5563">调用重读并清理 A 与 B</text>
+  <rect data-graph-role="legend" x="1012" y="924" width="244" height="62" rx="7" fill="#faf5ff" stroke="#e9d5ff" stroke-width="1.4"/>
+  <text x="1024" y="941" font-size="11.5" font-weight="600" fill="#6d28d9">⑧ panic / 记账失败收尾</text>
+  <text x="1024" y="958" font-size="10.5" fill="#4b5563">未完成结果留在 execution slot，下次只</text>
+  <text x="1024" y="973" font-size="10.5" fill="#4b5563">重试记账，绝不重复已完成的 Client 调用</text>
+  <rect data-graph-role="legend" x="20" y="1040" width="1236" height="80" rx="8" fill="#fffbeb" stroke="#fde68a" stroke-width="1.4"/>
+  <text x="34" y="1062" font-size="12.5" font-weight="600" fill="#92400e">崩溃窗口 → 恢复依据（首阶段为进程内原子语义；跨重启恢复依赖后续 SQL 工作包，内存实现无此保证）</text>
+  <text x="34" y="1085" font-size="11" fill="#78350f">claim 后退出 → attempts 已消耗，revision 不变，按预算恢复      ·      登记后 / 创建前退出 → 保守按 UNKNOWN 处理，Delete 可多做一次幂等清理</text>
+  <text x="34" y="1104" font-size="11" fill="#78350f">A 已删除、B 未创建 → 重放 update 跳过已确认 Absent 的 A      ·      B 创建成功但结果事务前退出 → 同身份同字节重放      ·      结果事务失败 → 整体回滚，不报告完成</text>
+  <g transform="translate(24,1142)">
+    <line x1="0" y1="8" x2="26" y2="8" stroke="#6b7280" stroke-width="1.7" marker-end="url(#m-gray)"/>
+    <text x="34" y="12" font-size="11" fill="#6b7280">控制 / 读取 / 回执</text>
+    <line x1="169" y1="8" x2="195" y2="8" stroke="#16a34a" stroke-width="1.7" marker-end="url(#m-green)"/>
+    <text x="203" y="12" font-size="11" fill="#6b7280">状态 CAS</text>
+    <line x1="281" y1="8" x2="307" y2="8" stroke="#dc2626" stroke-width="1.7" marker-end="url(#m-red)"/>
+    <text x="315" y="12" font-size="11" fill="#6b7280">登记 · 目标修改</text>
+    <line x1="430" y1="8" x2="456" y2="8" stroke="#2563eb" stroke-width="1.7" marker-end="url(#m-blue)"/>
+    <text x="464" y="12" font-size="11" fill="#6b7280">Client 端口</text>
+    <line x1="562" y1="8" x2="588" y2="8" stroke="#7c3aed" stroke-width="1.7" marker-end="url(#m-purple)"/>
+    <text x="596" y="12" font-size="11" fill="#6b7280">Adapter 翻译</text>
+    <line x1="700" y1="8" x2="726" y2="8" stroke="#ea580c" stroke-width="1.7" marker-end="url(#m-orange)"/>
+    <text x="734" y="12" font-size="11" fill="#6b7280">PAP 并发准入</text>
+    <line x1="834" y1="8" x2="860" y2="8" stroke="#6b7280" stroke-width="1.4" stroke-dasharray="6,4"/>
+    <text x="868" y="12" font-size="11" fill="#6b7280">返回值</text>
+    <rect x="931" y="1" width="10" height="14" rx="2" fill="#dcfce7" stroke="#16a34a"/>
+    <text x="949" y="12" font-size="11" fill="#6b7280">执行锁（同 Binding 串行，覆盖到记账收尾）</text>
+  </g>
+</svg>

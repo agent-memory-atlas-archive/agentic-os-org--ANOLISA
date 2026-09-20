@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 960" width="1400" height="960">
+  <style>    text { font-family: 'Helvetica Neue', Helvetica, Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif; }  </style>
+  <defs>
+    <marker id="a-blue" markerWidth="9" markerHeight="7" refX="8.5" refY="3.5" orient="auto"><polygon points="0 0, 9 3.5, 0 7" fill="#2563eb"/></marker>
+    <marker id="a-green" markerWidth="9" markerHeight="7" refX="8.5" refY="3.5" orient="auto"><polygon points="0 0, 9 3.5, 0 7" fill="#16a34a"/></marker>
+    <marker id="a-red" markerWidth="9" markerHeight="7" refX="8.5" refY="3.5" orient="auto"><polygon points="0 0, 9 3.5, 0 7" fill="#dc2626"/></marker>
+    <marker id="a-orange" markerWidth="9" markerHeight="7" refX="8.5" refY="3.5" orient="auto"><polygon points="0 0, 9 3.5, 0 7" fill="#ea580c"/></marker>
+    <marker id="a-gray" markerWidth="9" markerHeight="7" refX="8.5" refY="3.5" orient="auto"><polygon points="0 0, 9 3.5, 0 7" fill="#6b7280"/></marker>
+    <marker id="a-purple" markerWidth="9" markerHeight="7" refX="8.5" refY="3.5" orient="auto"><polygon points="0 0, 9 3.5, 0 7" fill="#7c3aed"/></marker>
+  </defs>
+  <rect data-graph-role="background" width="1400" height="960" fill="#ffffff"/>
+  <text x="44" y="42" font-size="19" font-weight="600" fill="#111827">Binding 生命周期：请求侧准入 与 worker 侧转移 是两套独立规则</text>
+  <text x="44" y="66" font-size="12.5" fill="#6b7280">PR #3103 的最大语义修正（CR-001 ~ CR-008）：bindingRevision 严格只标识 spec；删除意图不可撤销</text>
+  <rect data-graph-role="container" x="230" y="152" width="810" height="278" rx="10" fill="#f8fbff" stroke="#bfdbfe" stroke-width="1.5"/>
+  <rect data-graph-role="label" x="230" y="141" width="289" height="22" rx="6" fill="#ffffff" stroke="#bfdbfe" stroke-width="1.4"/>
+  <text x="240" y="156" font-size="11.5" font-weight="600" fill="#1d4ed8">Apply 侧（可反复重试、可被 UPDATE 改 spec）</text>
+  <rect data-graph-role="container" x="230" y="470" width="810" height="300" rx="10" fill="#fffaf5" stroke="#fed7aa" stroke-width="1.5"/>
+  <rect data-graph-role="label" x="773" y="459" width="255" height="22" rx="6" fill="#ffffff" stroke="#fed7aa" stroke-width="1.4"/>
+  <text x="783" y="474" font-size="11.5" font-weight="600" fill="#c2410c">Delete 侧（不可撤销：拒绝一切 UPDATE）</text>
+  <rect data-graph-role="node" x="20" y="232" width="150" height="56" rx="8" fill="#f3f4f6" stroke="#9ca3af" stroke-width="1.8" stroke-dasharray="5,3"/>
+  <text x="95" y="256" font-size="13" font-weight="600" fill="#111827" text-anchor="middle">absent</text>
+  <text x="95" y="273" font-size="10" fill="#6b7280" text-anchor="middle">无此 Binding · ID 不复用</text>
+  <rect data-graph-role="node" x="290" y="232" width="176" height="56" rx="8" fill="#ffffff" stroke="#2563eb" stroke-width="1.8"/>
+  <text x="378" y="256" font-size="13" font-weight="600" fill="#111827" text-anchor="middle">PENDING_APPLY</text>
+  <text x="378" y="273" font-size="10" fill="#6b7280" text-anchor="middle">已准入，未认领</text>
+  <rect data-graph-role="node" x="550" y="232" width="176" height="56" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="1.8"/>
+  <text x="638" y="256" font-size="13" font-weight="600" fill="#111827" text-anchor="middle">APPLYING</text>
+  <text x="638" y="273" font-size="10" fill="#6b7280" text-anchor="middle">worker 正在下发</text>
+  <rect data-graph-role="node" x="810" y="232" width="176" height="56" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.8"/>
+  <text x="898" y="256" font-size="13" font-weight="600" fill="#111827" text-anchor="middle">READY</text>
+  <text x="898" y="273" font-size="10" fill="#6b7280" text-anchor="middle">本次 spec 已确认生效</text>
+  <rect data-graph-role="node" x="810" y="356" width="176" height="56" rx="8" fill="#fef2f2" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="898" y="380" font-size="13" font-weight="600" fill="#111827" text-anchor="middle">APPLY_FAILED</text>
+  <text x="898" y="397" font-size="10" fill="#6b7280" text-anchor="middle">终态 · 保留目标记录</text>
+  <rect data-graph-role="node" x="290" y="550" width="176" height="56" rx="8" fill="#ffffff" stroke="#ea580c" stroke-width="1.8"/>
+  <text x="378" y="574" font-size="13" font-weight="600" fill="#111827" text-anchor="middle">PENDING_DELETE</text>
+  <text x="378" y="591" font-size="10" fill="#6b7280" text-anchor="middle">已准入，未认领</text>
+  <rect data-graph-role="node" x="550" y="550" width="176" height="56" rx="8" fill="#fff7ed" stroke="#ea580c" stroke-width="1.8"/>
+  <text x="638" y="574" font-size="13" font-weight="600" fill="#111827" text-anchor="middle">DELETING</text>
+  <text x="638" y="591" font-size="10" fill="#6b7280" text-anchor="middle">worker 正在清理</text>
+  <rect data-graph-role="node" x="810" y="550" width="176" height="56" rx="8" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.8"/>
+  <rect x="814" y="554" width="168" height="48" rx="5" fill="none" stroke="#6b7280" stroke-width="1"/>
+  <text x="898" y="574" font-size="13" font-weight="600" fill="#111827" text-anchor="middle">记录不存在（final）</text>
+  <text x="898" y="591" font-size="10" fill="#6b7280" text-anchor="middle">旧 ID → NotFound</text>
+  <rect data-graph-role="node" x="810" y="674" width="176" height="56" rx="8" fill="#fef2f2" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="898" y="698" font-size="13" font-weight="600" fill="#111827" text-anchor="middle">DELETE_FAILED</text>
+  <text x="898" y="715" font-size="10" fill="#6b7280" text-anchor="middle">终态 · 保留待清理目标</text>
+  <path data-graph-role="edge" d="M 170,260 L 282,260" fill="none" stroke="#2563eb" stroke-width="1.8" marker-end="url(#a-blue)"/>
+  <rect data-graph-role="label" x="179" y="238" width="102" height="17" rx="3" fill="#ffffff" opacity="0.97"/>
+  <text x="230" y="252" font-size="11" fill="#2563eb" text-anchor="middle">CREATE · rev 1</text>
+  <path data-graph-role="edge" d="M 466,260 L 542,260" fill="none" stroke="#7c3aed" stroke-width="1.8" marker-end="url(#a-purple)"/>
+  <rect data-graph-role="label" x="482" y="238" width="43" height="17" rx="3" fill="#ffffff" opacity="0.97"/>
+  <text x="504" y="252" font-size="11" fill="#7c3aed" text-anchor="middle">claim</text>
+  <path data-graph-role="edge" d="M 726,260 L 802,260" fill="none" stroke="#16a34a" stroke-width="1.8" marker-end="url(#a-green)"/>
+  <rect data-graph-role="label" x="737" y="208" width="54" height="17" rx="3" fill="#ffffff" opacity="0.97"/>
+  <text x="764" y="222" font-size="11" fill="#16a34a" text-anchor="middle">结果确认</text>
+  <path data-graph-role="edge" d="M 638,288 L 638,320 L 898,320 L 898,348" fill="none" stroke="#dc2626" stroke-width="1.8" marker-end="url(#a-red)"/>
+  <rect data-graph-role="label" x="709" y="298" width="118" height="17" rx="3" fill="#ffffff" opacity="0.97"/>
+  <text x="768" y="312" font-size="11" fill="#dc2626" text-anchor="middle">永久失败 / 预算耗尽</text>
+  <path data-graph-role="edge" d="M 620,232 L 620,200 L 380,200 L 380,224" fill="none" stroke="#7c3aed" stroke-width="1.8" marker-end="url(#a-purple)"/>
+  <rect data-graph-role="label" x="441" y="178" width="118" height="17" rx="3" fill="#ffffff" opacity="0.97"/>
+  <text x="500" y="192" font-size="11" fill="#7c3aed" text-anchor="middle">可重试 → 退避后重排</text>
+  <path data-graph-role="edge" d="M 810,384 L 432,384 L 432,292" fill="none" stroke="#2563eb" stroke-width="1.8" marker-end="url(#a-blue)"/>
+  <rect data-graph-role="label" x="490" y="362" width="263" height="17" rx="3" fill="#ffffff" opacity="0.97"/>
+  <text x="621" y="376" font-size="11" fill="#2563eb" text-anchor="middle">同 spec UPDATE（rev 不变，复用 prepared）</text>
+  <path data-graph-role="edge" d="M 898,232 L 898,172 L 316,172 L 316,224" fill="none" stroke="#2563eb" stroke-width="1.8" marker-end="url(#a-blue)"/>
+  <rect data-graph-role="label" x="844" y="154" width="186" height="17" rx="3" fill="#ffffff" opacity="0.97"/>
+  <text x="1030" y="168" font-size="11" fill="#2563eb" text-anchor="end">changed-spec UPDATE：rev +1</text>
+  <path data-graph-role="edge" d="M 466,578 L 542,578" fill="none" stroke="#7c3aed" stroke-width="1.8" marker-end="url(#a-purple)"/>
+  <rect data-graph-role="label" x="482" y="556" width="43" height="17" rx="3" fill="#ffffff" opacity="0.97"/>
+  <text x="504" y="570" font-size="11" fill="#7c3aed" text-anchor="middle">claim</text>
+  <path data-graph-role="edge" d="M 726,578 L 802,578" fill="none" stroke="#16a34a" stroke-width="1.8" marker-end="url(#a-green)"/>
+  <rect data-graph-role="label" x="694" y="525" width="140" height="16" rx="3" fill="#ffffff" opacity="0.97"/>
+  <text x="764" y="538" font-size="10" fill="#16a34a" text-anchor="middle">全部 Absent → 原子删聚合</text>
+  <path data-graph-role="edge" d="M 620,550 L 620,512 L 380,512 L 380,542" fill="none" stroke="#7c3aed" stroke-width="1.8" marker-end="url(#a-purple)"/>
+  <rect data-graph-role="label" x="441" y="490" width="118" height="17" rx="3" fill="#ffffff" opacity="0.97"/>
+  <text x="500" y="504" font-size="11" fill="#7c3aed" text-anchor="middle">可重试 → 退避后重排</text>
+  <path data-graph-role="edge" d="M 638,606 L 638,638 L 898,638 L 898,666" fill="none" stroke="#dc2626" stroke-width="1.8" marker-end="url(#a-red)"/>
+  <rect data-graph-role="label" x="709" y="616" width="118" height="17" rx="3" fill="#ffffff" opacity="0.97"/>
+  <text x="768" y="630" font-size="11" fill="#dc2626" text-anchor="middle">永久失败 / 预算耗尽</text>
+  <path data-graph-role="edge" d="M 810,702 L 432,702 L 432,610" fill="none" stroke="#ea580c" stroke-width="1.8" marker-end="url(#a-orange)"/>
+  <rect data-graph-role="label" x="516" y="680" width="210" height="17" rx="3" fill="#ffffff" opacity="0.97"/>
+  <text x="621" y="694" font-size="11" fill="#ea580c" text-anchor="middle">DELETE 重试：预算重置，目标记录保留</text>
+  <circle cx="250" cy="430" r="4" fill="#ea580c"/>
+  <path data-graph-role="edge" d="M 250,430 L 250,506 L 330,506 L 330,542" fill="none" stroke="#ea580c" stroke-width="1.8" marker-end="url(#a-orange)"/>
+  <text x="266" y="450" font-size="11.5" font-weight="600" fill="#c2410c">DELETE ← 任何 Apply 侧状态（含 APPLYING）</text>
+  <text x="266" y="466" font-size="11" fill="#9a3412">rev 不变，spec 与全部部署记录原样保留</text>
+  <text x="246" y="756" font-size="11.5" font-weight="600" fill="#b91c1c">⛔ 不存在回到 Apply 侧的路径：删除侧三个状态对所有 UPDATE 返回 conflict；重新部署只能 CREATE 新 ID、revision 1</text>
+  <rect data-graph-role="legend" x="1064" y="152" width="312" height="107" rx="7" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.4"/>
+  <text x="1078" y="169" font-size="11.5" font-weight="600" fill="#1d4ed8">revision 规则（CR-001）</text>
+  <text x="1078" y="186" font-size="10.5" fill="#4b5563">创建 = 1；仅 spec 改变时 +1</text>
+  <text x="1078" y="201" font-size="10.5" fill="#4b5563">Delete、同 spec 失败重试、worker</text>
+  <text x="1078" y="216" font-size="10.5" fill="#4b5563">状态推进 一律不增版</text>
+  <text x="1078" y="231" font-size="10.5" fill="#4b5563">revision 不是状态变化序号；A→B→A</text>
+  <text x="1078" y="246" font-size="10.5" fill="#4b5563">也产生新版本，不复用旧号</text>
+  <rect data-graph-role="legend" x="1064" y="286" width="312" height="107" rx="7" fill="#fef2f2" stroke="#fecaca" stroke-width="1.4"/>
+  <text x="1078" y="303" font-size="11.5" font-weight="600" fill="#b91c1c">为什么 Delete 绝不能增版</text>
+  <text x="1078" y="320" font-size="10.5" fill="#4b5563">AgentSight 目标 ID =</text>
+  <text x="1078" y="335" font-size="10.5" fill="#4b5563">UUIDv5(binding_id + revision)。</text>
+  <text x="1078" y="350" font-size="10.5" fill="#4b5563">若 Delete 增版，删除时算出的 UUID</text>
+  <text x="1078" y="365" font-size="10.5" fill="#4b5563">与创建时不同 → 原对象永远删不掉。</text>
+  <text x="1078" y="380" font-size="10.5" fill="#4b5563">这是整条规则链的根因</text>
+  <rect data-graph-role="legend" x="1064" y="420" width="312" height="107" rx="7" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1.4"/>
+  <text x="1078" y="437" font-size="11.5" font-weight="600" fill="#374151">硬删除，不留 DELETED 行</text>
+  <text x="1078" y="454" font-size="10.5" fill="#4b5563">Deleted 只是状态机内部完成标记。</text>
+  <text x="1078" y="469" font-size="10.5" fill="#4b5563">全部目标确认 Absent 后，用</text>
+  <text x="1078" y="484" font-size="10.5" fill="#4b5563">BindingStateWrite::delete() 条件删除</text>
+  <text x="1078" y="499" font-size="10.5" fill="#4b5563">整个聚合：Binding + runtime +</text>
+  <text x="1078" y="514" font-size="10.5" fill="#4b5563">deployments + 写回执，一起消失</text>
+  <rect data-graph-role="legend" x="1064" y="554" width="312" height="107" rx="7" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1.4"/>
+  <text x="1078" y="571" font-size="11.5" font-weight="600" fill="#15803d">删除后重新部署</text>
+  <text x="1078" y="588" font-size="10.5" fill="#4b5563">PAP CREATE 新 ID、revision 1。</text>
+  <text x="1078" y="603" font-size="10.5" fill="#4b5563">旧 ID 不复用，UUIDv5 自然算出新目标。</text>
+  <text x="1078" y="618" font-size="10.5" fill="#4b5563">正好绕开 AgentSight 保留 Detached</text>
+  <text x="1078" y="633" font-size="10.5" fill="#4b5563">记录、同 UUID 同 body 重放会返回</text>
+  <text x="1078" y="648" font-size="10.5" fill="#4b5563">Detaching / Detached 的行为</text>
+  <rect data-graph-role="legend" x="1064" y="688" width="312" height="92" rx="7" fill="#faf5ff" stroke="#e9d5ff" stroke-width="1.4"/>
+  <text x="1078" y="705" font-size="11.5" font-weight="600" fill="#6d28d9">APPLYING 期间允许 Delete</text>
+  <text x="1078" y="722" font-size="10.5" fill="#4b5563">本 PR 新放开（CR-003 / CR-008）。</text>
+  <text x="1078" y="737" font-size="10.5" fill="#4b5563">但 APPLYING 期间 changed-spec UPDATE</text>
+  <text x="1078" y="752" font-size="10.5" fill="#4b5563">仍拒绝；同 spec UPDATE 为 no-op，</text>
+  <text x="1078" y="767" font-size="10.5" fill="#4b5563">不重置重试预算与错误</text>
+  <rect data-graph-role="legend" x="44" y="800" width="1332" height="106" rx="8" fill="#fffbeb" stroke="#fde68a" stroke-width="1.4"/>
+  <text x="58" y="822" font-size="12.5" font-weight="600" fill="#92400e">两套规则分开维护：请求侧用 PapRepository::update_binding(expected, next) 条件写；worker 侧用聚合快照 CAS + BindingStatus::validate_successor</text>
+  <text x="58" y="845" font-size="11" fill="#78350f">请求侧函数：request_apply() 拒绝所有删除侧状态 · request_delete() 改为无错的全定义函数（对任何状态都有确定答案，移除了无效错误层）</text>
+  <text x="58" y="865" font-size="11" fill="#78350f">worker 侧函数：start_reconcile / complete_reconcile / retry_reconcile / fail_reconcile，全部保持 revision 不变；validate_successor 只接受同版本内的 worker 转移</text>
+  <text x="58" y="885" font-size="11" fill="#78350f">update_binding(None, next) = insert-if-absent；update_binding(Some(expected), next) = 仅更新已存在记录，绝不退化为 insert —— 关闭“service 预读 → worker 硬删除 → 写回复活记录”的窗口</text>
+  <g transform="translate(44,930)">
+    <line x1="0" y1="8" x2="26" y2="8" stroke="#2563eb" stroke-width="1.8" marker-end="url(#a-blue)"/>
+    <text x="34" y="12" font-size="11" fill="#6b7280">用户请求准入（PAP）</text>
+    <line x1="177" y1="8" x2="203" y2="8" stroke="#7c3aed" stroke-width="1.8" marker-end="url(#a-purple)"/>
+    <text x="211" y="12" font-size="11" fill="#6b7280">worker 认领 / 重试</text>
+    <line x1="357" y1="8" x2="383" y2="8" stroke="#16a34a" stroke-width="1.8" marker-end="url(#a-green)"/>
+    <text x="391" y="12" font-size="11" fill="#6b7280">确认成功</text>
+    <line x1="471" y1="8" x2="497" y2="8" stroke="#dc2626" stroke-width="1.8" marker-end="url(#a-red)"/>
+    <text x="505" y="12" font-size="11" fill="#6b7280">失败终态</text>
+    <line x1="585" y1="8" x2="611" y2="8" stroke="#ea580c" stroke-width="1.8" marker-end="url(#a-orange)"/>
+    <text x="619" y="12" font-size="11" fill="#6b7280">删除意图（不可撤销）</text>
+  </g>
+</svg>

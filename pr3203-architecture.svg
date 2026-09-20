@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 860" width="1000" height="860">
+  <style> text { font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Microsoft YaHei", "SimHei", sans-serif; } </style>
+  <defs>
+    <marker id="arrow-blue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#2563eb"/></marker>
+    <marker id="arrow-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#16a34a"/></marker>
+    <marker id="arrow-purple" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#9333ea"/></marker>
+  </defs>
+  <rect width="1000" height="860" fill="#ffffff"/>
+  <text x="500" y="34" text-anchor="middle" font-size="18" font-weight="700" fill="#111827">ANOLISA PR #3203 · v2 Code Scanner 架构</text>
+  <text x="500" y="55" text-anchor="middle" font-size="12.5" font-weight="400" fill="#6b7280">Agent hook → agent-sec-cli scan-code → asc-daemon 调度/鉴权 → 扫描能力（纯函数）</text>
+  <rect x="84" y="72" width="622" height="80" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.3" stroke-dasharray="6 5"/>
+  <text x="98" y="92" font-size="13" font-weight="600" fill="#475569">① 调用方 Callers</text>
+  <rect x="84" y="172" width="622" height="120" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.3" stroke-dasharray="6 5"/>
+  <text x="98" y="192" font-size="13" font-weight="600" fill="#475569">② asc-cli · CLI 转发层  [本PR新增]</text>
+  <rect x="84" y="312" width="622" height="80" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.3" stroke-dasharray="6 5"/>
+  <text x="98" y="332" font-size="13" font-weight="600" fill="#475569">③ 传输 Transport</text>
+  <rect x="84" y="412" width="622" height="184" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.3" stroke-dasharray="6 5"/>
+  <text x="98" y="432" font-size="13" font-weight="600" fill="#475569">④ asc-daemon · 调度与鉴权</text>
+  <rect x="84" y="616" width="622" height="136" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.3" stroke-dasharray="6 5"/>
+  <text x="300" y="636" font-size="13" font-weight="600" fill="#475569">⑤ 扫描能力 · asc-capability-code-scan</text>
+  <rect x="730" y="200" width="238" height="310" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.3" stroke-dasharray="6 5"/>
+  <text x="744" y="220" font-size="13" font-weight="600" fill="#475569">共享构件（被 ②④ 引用）</text>
+  <path d="M 245,144 L 245,201" fill="none" stroke="#2563eb" stroke-width="2" marker-end="url(#arrow-blue)"/>
+  <path d="M 245,271 L 245,332" fill="none" stroke="#2563eb" stroke-width="2" marker-end="url(#arrow-blue)"/>
+  <path d="M 245,384 L 245,442" fill="none" stroke="#2563eb" stroke-width="2" marker-end="url(#arrow-blue)"/>
+  <path d="M 360,474 L 428,474" fill="none" stroke="#2563eb" stroke-width="2" marker-end="url(#arrow-blue)"/>
+  <path d="M 545,504 L 545,516 L 245,516 L 245,526" fill="none" stroke="#2563eb" stroke-width="2" marker-end="url(#arrow-blue)"/>
+  <path d="M 245,576 L 245,648" fill="none" stroke="#2563eb" stroke-width="2" marker-end="url(#arrow-blue)"/>
+  <path d="M 150,692 L 48,692 L 48,124 L 168,124" fill="none" stroke="#16a34a" stroke-width="1.8" marker-end="url(#arrow-green)"/>
+  <path d="M 660,238 L 726,238" fill="none" stroke="#9333ea" stroke-width="1.3" stroke-dasharray="5 4" marker-end="url(#arrow-purple)"/>
+  <path d="M 660,474 L 726,474" fill="none" stroke="#9333ea" stroke-width="1.3" stroke-dasharray="5 4" marker-end="url(#arrow-purple)"/>
+  <text x="262" y="512" text-anchor="start" font-size="10.5" font-weight="600" fill="#2563eb">route → handler</text>
+  <text x="394" y="468" text-anchor="middle" font-size="10.5" font-weight="600" fill="#2563eb">鉴权</text>
+  <text x="266" y="612" text-anchor="start" font-size="10.5" font-weight="600" fill="#2563eb">scan()</text>
+  <rect x="170" y="104" width="370" height="40" rx="8" fill="#ffffff" stroke="#d1d5db" stroke-width="1.5"/>
+  <text x="355" y="120.0" text-anchor="middle" font-size="13" font-weight="600" fill="#111827">调用方 Agent Hooks / 开发者 CLI</text>
+  <text x="355" y="136.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#374151">Qoder · Cosh · Qwen Code · Codex</text>
+  <rect x="130" y="205" width="230" height="66" rx="8" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5"/>
+  <text x="245" y="226.0" text-anchor="middle" font-size="13" font-weight="600" fill="#111827">scan-code 命令  [新增]</text>
+  <text x="245" y="242.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#374151">构建 DaemonRequest</text>
+  <text x="245" y="258.0" text-anchor="middle" font-size="11" font-weight="400" fill="#374151">--code / --language / --mode</text>
+  <rect x="430" y="205" width="230" height="66" rx="8" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5"/>
+  <text x="545" y="226.0" text-anchor="middle" font-size="13" font-weight="600" fill="#111827">render_scan_code  [新增]</text>
+  <text x="545" y="242.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#374151">V1 兼容 JSON → stdout</text>
+  <text x="545" y="258.0" text-anchor="middle" font-size="11" font-weight="400" fill="#374151">verdict / findings</text>
+  <rect x="130" y="336" width="230" height="48" rx="8" fill="#ffffff" stroke="#d1d5db" stroke-width="1.5"/>
+  <text x="245" y="356.0" text-anchor="middle" font-size="13" font-weight="600" fill="#111827">asc-daemon-client::call</text>
+  <text x="245" y="372.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#374151">Unix Domain Socket（UDS）</text>
+  <rect x="130" y="444" width="230" height="60" rx="8" fill="#ffffff" stroke="#d1d5db" stroke-width="1.5"/>
+  <text x="245" y="470.0" text-anchor="middle" font-size="13" font-weight="600" fill="#111827">DaemonDispatcher</text>
+  <text x="245" y="486.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#374151">resolve → Action(CodeScan)</text>
+  <rect x="430" y="444" width="230" height="60" rx="8" fill="#ffffff" stroke="#d1d5db" stroke-width="1.5"/>
+  <text x="545" y="470.0" text-anchor="middle" font-size="13" font-weight="600" fill="#111827">AccessPolicy::LocalUser</text>
+  <text x="545" y="486.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#374151">内核认证本地对端即放行</text>
+  <rect x="130" y="528" width="230" height="48" rx="8" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5"/>
+  <text x="245" y="548.0" text-anchor="middle" font-size="13" font-weight="600" fill="#111827">CodeScanHandler  [新增]</text>
+  <text x="245" y="564.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#374151">解码 / 校验 / 调用能力</text>
+  <rect x="430" y="528" width="230" height="48" rx="8" fill="#f3f4f6" stroke="#d1d5db" stroke-width="1.5"/>
+  <text x="545" y="548.0" text-anchor="middle" font-size="12.5" font-weight="600" fill="#6b7280">PapHandler（既有）</text>
+  <text x="545" y="564.0" text-anchor="middle" font-size="11" font-weight="400" fill="#9ca3af">policy.* 方法族</text>
+  <rect x="150" y="650" width="510" height="84" rx="8" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5"/>
+  <text x="405" y="672.0" text-anchor="middle" font-size="13" font-weight="600" fill="#111827">asc-capability-code-scan · scan()  [本PR新增]</text>
+  <text x="405" y="688.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#374151">extractor（内联提取）→ rules（内嵌 YAML）</text>
+  <text x="405" y="704.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#374151">→ engine（regex + backtrack 上限）→ findings</text>
+  <text x="405" y="720.0" text-anchor="middle" font-size="11" font-weight="400" fill="#6b7280">纯函数 / 无状态 / 规则编译期内嵌</text>
+  <rect x="744" y="230" width="210" height="96" rx="8" fill="#faf5ff" stroke="#d8b4fe" stroke-width="1.5"/>
+  <text x="849" y="258.0" text-anchor="middle" font-size="13" font-weight="600" fill="#111827">asc-daemon-protocol</text>
+  <text x="849" y="274.0" text-anchor="middle" font-size="11" font-weight="400" fill="#374151">method = "action.code_scan"</text>
+  <text x="849" y="290.0" text-anchor="middle" font-size="11" font-weight="400" fill="#374151">CodeScanParams</text>
+  <text x="849" y="306.0" text-anchor="middle" font-size="10.5" font-weight="400" fill="#6b7280">deny_unknown_fields</text>
+  <rect x="744" y="382" width="210" height="96" rx="8" fill="#faf5ff" stroke="#d8b4fe" stroke-width="1.5"/>
+  <text x="849" y="410.0" text-anchor="middle" font-size="13" font-weight="600" fill="#111827">asc-foundation-types</text>
+  <text x="849" y="426.0" text-anchor="middle" font-size="11.5" font-weight="400" fill="#374151">daemon_socket 契约</text>
+  <text x="849" y="442.0" text-anchor="middle" font-size="10.5" font-weight="400" fill="#374151">AGENT_SEC_DAEMON_SOCKET</text>
+  <text x="849" y="458.0" text-anchor="middle" font-size="10.5" font-weight="400" fill="#6b7280">(替代旧 XDG 默认)</text>
+  <line x1="90" y1="800" x2="120" y2="800" stroke="#2563eb" stroke-width="2" marker-end="url(#arrow-blue)"/>
+  <text x="126" y="804" text-anchor="start" font-size="11.5" font-weight="400" fill="#6b7280">请求（scan-code → daemon → scan）</text>
+  <line x1="372" y1="800" x2="402" y2="800" stroke="#16a34a" stroke-width="1.8" marker-end="url(#arrow-green)"/>
+  <text x="408" y="804" text-anchor="start" font-size="11.5" font-weight="400" fill="#6b7280">结果（ScanResult / V1 JSON）</text>
+  <line x1="640" y1="800" x2="670" y2="800" stroke="#9333ea" stroke-width="1.3" stroke-dasharray="5 4" marker-end="url(#arrow-purple)"/>
+  <text x="676" y="804" text-anchor="start" font-size="11.5" font-weight="400" fill="#6b7280">引用共享契约（协议 / socket）</text>
+  <rect x="90" y="822" width="22" height="14" rx="4" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5"/>
+  <text x="118" y="833" text-anchor="start" font-size="11.5" font-weight="400" fill="#6b7280">本PR新增</text>
+  <rect x="200" y="822" width="22" height="14" rx="4" fill="#f3f4f6" stroke="#d1d5db" stroke-width="1.5"/>
+  <text x="228" y="833" text-anchor="start" font-size="11.5" font-weight="400" fill="#6b7280">既有组件</text>
+  <text x="300" y="833" text-anchor="start" font-size="11" font-weight="400" fill="#94a3b8">注：daemon 必须已运行；CLI 不自动启动 daemon、不回落 Python。</text>
+</svg>

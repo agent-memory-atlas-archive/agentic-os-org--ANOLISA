@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 820" width="1200" height="820">
+  <style>
+    text { font-family: 'Helvetica Neue', Helvetica, Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif; }
+    .t  { font-size: 14px; font-weight: 600; fill: #111827; }
+    .s  { font-size: 11.5px; fill: #6b7280; }
+    .sm { font-size: 11px; fill: #6b7280; }
+    .no { font-size: 11px; fill: #b91c1c; }
+    .wa { font-size: 11px; fill: #c2410c; }
+    .el { font-size: 11px; fill: #374151; }
+  </style>
+  <defs>
+    <marker id="ab" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#2563eb"/>
+    </marker>
+    <marker id="ag" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#16a34a"/>
+    </marker>
+    <marker id="ar" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#dc2626"/>
+    </marker>
+    <marker id="ay" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#9ca3af"/>
+    </marker>
+  </defs>
+  <rect width="1200" height="820" fill="#ffffff"/>
+  <text x="60" y="44" font-size="19" font-weight="600" fill="#111827">ANOLISA sec-core V2 &#183; Binding Reconciler 架构实现（PR #3103）</text>
+  <text x="60" y="68" font-size="12.5" fill="#6b7280">四层严格分工：请求准入 / 通用编排 / 端口契约 / PEP 专有实现。虚线灰 = 本 PR 未实现</text>
+  <rect x="84" y="98" width="196" height="22" rx="11" fill="#eff6ff" stroke="#bfdbfe"/>
+  <text x="96" y="113" font-size="11.5" font-weight="600" fill="#1d4ed8">① 同步请求面（PAP）</text>
+  <rect x="636" y="98" width="232" height="22" rx="11" fill="#f0fdf4" stroke="#bbf7d0"/>
+  <text x="648" y="113" font-size="11.5" font-weight="600" fill="#15803d">② 异步执行面（Reconciler）</text>
+  <rect x="84" y="140" width="480" height="68" rx="8" fill="#f9fafb" stroke="#d1d5db" stroke-width="1.5"/>
+  <text x="98" y="162" class="t" fill="#111827">asc-daemon-handler / asc-daemon-core</text>
+  <text x="98" y="181" class="s">15 方法 allowlist &#183; UDS peer credentials → Principal</text>
+  <text x="98" y="197" class="no">&#10007; 只解码 / 调用 / 投影，不改 revision，不等 Client</text>
+  <rect x="636" y="140" width="480" height="68" rx="8" fill="#fafafa" stroke="#9ca3af" stroke-width="1.5" stroke-dasharray="6,4"/>
+  <text x="650" y="162" class="t" fill="#6b7280">daemon worker &#183; 通知 &#183; 到期定时器</text>
+  <text x="650" y="181" class="wa">NOT IMPLEMENTED —— 下一工作块</text>
+  <text x="650" y="197" class="sm">PAP 提交成功后才唤醒；核心只暴露同步 reconcile(id)</text>
+  <rect x="84" y="234" width="480" height="84" rx="8" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.5"/>
+  <text x="98" y="256" class="t" fill="#111827">PapService  (asc-pap)</text>
+  <text x="98" y="275" class="s">来源解析 → 完整 Policy/Scope 快照嵌入 spec</text>
+  <text x="98" y="291" class="s">spec 相等判断 → revision 决策 &#183; 原子准入后立即返回</text>
+  <text x="98" y="307" class="no">&#10007; 不调 Adapter / Client / PEP，不等远端结果</text>
+  <rect x="636" y="234" width="480" height="84" rx="8" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1.5"/>
+  <text x="650" y="256" class="t" fill="#111827">BindingReconciler  (asc-pcp)</text>
+  <text x="650" y="275" class="s">执行锁 → claim → prepare → register → Client → finish</text>
+  <text x="650" y="291" class="s">有界指数退避 &#183; catch_unwind 收尾 &#183; Disposition</text>
+  <text x="650" y="307" class="no">&#10007; 不含 UUIDv5 / HTTP / DSL / PID 任何 PEP 语义</text>
+  <rect x="84" y="352" width="480" height="104" rx="8" fill="#faf5ff" stroke="#e9d5ff" stroke-width="1.5"/>
+  <text x="98" y="374" class="t" fill="#111827">asc-policy-repository   （存储端口）</text>
+  <text x="98" y="393" class="sm">get_binding_state(id) → Option&lt;BindingStateSnapshot&gt;</text>
+  <text x="98" y="409" class="sm">compare_exchange_binding_state(expected, write)</text>
+  <text x="98" y="425" class="s">全量快照 CAS：含 runtime + deployments，非只比 revision/status</text>
+  <text x="98" y="441" class="s">write_id 幂等回执 &#183; write.next = None → 原子删整个聚合</text>
+  <rect x="636" y="352" width="480" height="104" rx="8" fill="#faf5ff" stroke="#e9d5ff" stroke-width="1.5"/>
+  <text x="650" y="374" class="t" fill="#111827">asc-policy-target-contracts   （PEP 中立端口）</text>
+  <text x="650" y="393" class="sm">TargetBindingAdapter::translate(&amp;PreparedBinding)</text>
+  <text x="650" y="409" class="sm">TargetDeploymentClient::prepare_apply / create / update / delete</text>
+  <text x="650" y="425" class="s">数据契约在 asc-policy-types::target（纯 serde，40 行 trait）</text>
+  <text x="650" y="441" class="s">Client 不依赖 asc-pcp；核心只重导出，依赖单向</text>
+  <rect x="84" y="502" width="480" height="82" rx="8" fill="#ffffff" stroke="#d1d5db" stroke-width="1.5"/>
+  <text x="98" y="524" class="t" fill="#111827">ProcessLocalPapRepository  (asc-pap-repository-memory)</text>
+  <text x="98" y="543" class="s">与 PAP 共用唯一权威 current Binding map</text>
+  <text x="98" y="559" class="s">同一临界区内完成条件检查 + 更新</text>
+  <text x="98" y="575" class="wa">&#9888; 纯内存：进程退出丢全部记录，PEP 对象可能遗留</text>
+  <rect x="636" y="502" width="228" height="82" rx="8" fill="#ffffff" stroke="#d1d5db" stroke-width="1.5"/>
+  <text x="650" y="524" class="t" fill="#111827">AgentSightAdapter</text>
+  <text x="650" y="543" class="sm">Binding → ActPlane DSL</text>
+  <text x="650" y="559" class="sm">确定性排序 &#183; 63B / 128 rules</text>
+  <text x="650" y="575" class="sm">Rejected vs AdapterFault 分离</text>
+  <rect x="888" y="502" width="228" height="82" rx="8" fill="#ffffff" stroke="#d1d5db" stroke-width="1.5"/>
+  <text x="902" y="524" class="t" fill="#111827">AgentSightClient</text>
+  <text x="902" y="543" class="sm">UUIDv5 目标身份 &#183; 固定字节</text>
+  <text x="902" y="559" class="sm">boot_id + start_time 重放校验</text>
+  <text x="902" y="575" class="sm">先删旧 → 再建新 &#183; 部分结果</text>
+  <rect x="888" y="626" width="228" height="64" rx="8" fill="#fef2f2" stroke="#fecaca" stroke-width="1.5"/>
+  <text x="902" y="648" class="t" fill="#111827">AgentSight / ActPlane</text>
+  <text x="902" y="667" class="sm">/api/enforcement/bindings</text>
+  <text x="902" y="683" class="wa">&#9888; 真实目标未联调</text>
+  <rect x="84" y="626" width="760" height="104" rx="8" fill="#fffbeb" stroke="#fde68a" stroke-width="1.5"/>
+  <text x="98" y="648" class="t" fill="#92400e">三条贯穿全设计的不变量</text>
+  <text x="98" y="670" font-size="11.5" fill="#78350f">1&#160;&#160; register 严格先于 Client 调用：目标身份 + 稳定请求先落库，登记提交失败则零目标修改调用</text>
+  <text x="98" y="690" font-size="11.5" fill="#78350f">2&#160;&#160; 只有明确确认 Absent 才回收部署记录；失败 / 超时 / 预算耗尽都保留清理责任，UNKNOWN &#8800; 未部署</text>
+  <text x="98" y="710" font-size="11.5" fill="#78350f">3&#160;&#160; bindingRevision 只随 spec 变化；删除意图不可撤销，全部确认后硬删除整个聚合，重部署用新 ID</text>
+  <line x1="324" y1="208" x2="324" y2="230" stroke="#2563eb" stroke-width="1.8" marker-end="url(#ab)"/>
+  <line x1="876" y1="208" x2="876" y2="230" stroke="#9ca3af" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#ay)"/>
+  <text x="886" y="224" class="el" fill="#6b7280">binding_id</text>
+  <line x1="260" y1="318" x2="260" y2="348" stroke="#2563eb" stroke-width="1.8" marker-end="url(#ab)"/>
+  <text x="270" y="338" class="el">条件写准入</text>
+  <line x1="820" y1="318" x2="820" y2="348" stroke="#16a34a" stroke-width="1.8" marker-end="url(#ag)"/>
+  <text x="830" y="338" class="el">调用端口</text>
+  <path d="M 636,276 L 600,276 L 600,404 L 568,404" fill="none" stroke="#16a34a" stroke-width="1.8" marker-end="url(#ag)"/>
+  <text x="592" y="340" class="el" fill="#15803d" text-anchor="end">一致读 + 快照 CAS</text>
+  <line x1="180" y1="456" x2="180" y2="498" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#ay)"/>
+  <text x="190" y="482" class="el" fill="#6b7280">impl</text>
+  <line x1="736" y1="456" x2="736" y2="498" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#ay)"/>
+  <text x="746" y="482" class="el" fill="#6b7280">impl</text>
+  <line x1="1002" y1="456" x2="1002" y2="498" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#ay)"/>
+  <text x="1012" y="482" class="el" fill="#6b7280">impl</text>
+  <line x1="1002" y1="584" x2="1002" y2="622" stroke="#dc2626" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="1012" y="608" class="el" fill="#b91c1c">HTTPS</text>
+  <g transform="translate(84,762)">
+    <line x1="0" y1="8" x2="28" y2="8" stroke="#2563eb" stroke-width="1.6" marker-end="url(#ab)"/>
+    <text x="36" y="12" font-size="11.5" fill="#6b7280">同步请求准入</text>
+    <line x1="154" y1="8" x2="182" y2="8" stroke="#16a34a" stroke-width="1.6" marker-end="url(#ag)"/>
+    <text x="190" y="12" font-size="11.5" fill="#6b7280">Reconciler 执行</text>
+    <line x1="399" y1="8" x2="427" y2="8" stroke="#dc2626" stroke-width="1.6" marker-end="url(#ar)"/>
+    <text x="435" y="12" font-size="11.5" fill="#6b7280">目标 HTTP</text>
+    <line x1="566" y1="8" x2="594" y2="8" stroke="#9ca3af" stroke-width="1.6" marker-end="url(#ay)"/>
+    <text x="602" y="12" font-size="11.5" fill="#6b7280">trait 实现 / 未实现通知</text>
+  </g>
+</svg>
