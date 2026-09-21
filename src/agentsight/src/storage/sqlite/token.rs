@@ -2,13 +2,15 @@
 //!
 //! Uses SQLite for persistent storage of token usage records.
 
+use agentsight_sqlite_lifecycle::{
+    CheckpointOutcome, ConnectionOptions, checkpoint_truncate, open_connection,
+};
 use chrono::{Datelike, Utc};
 use rusqlite::{Connection, params};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use super::connection::{create_connection, default_base_path, wal_checkpoint};
 use crate::analyzer::TokenRecord;
 
 /// Time period for queries
@@ -225,19 +227,25 @@ pub struct TokenStore {
 }
 
 impl TokenStore {
-    /// Create a new token store with default table name
-    pub fn new(path: impl Into<PathBuf>) -> Self {
+    /// Create a new token store with default table name.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error when the database cannot be opened or initialized.
+    pub fn new(path: impl Into<PathBuf>) -> anyhow::Result<Self> {
         Self::with_table(path, "token_records")
     }
 
-    /// Create a new token store with custom table name
-    pub fn with_table(path: impl Into<PathBuf>, table_name: &str) -> Self {
+    /// Create a new token store with custom table name.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error when the database cannot be opened or initialized.
+    pub fn with_table(path: impl Into<PathBuf>, table_name: &str) -> anyhow::Result<Self> {
         let path = path.into();
-        let conn =
-            create_connection(&path).expect("Failed to open SQLite database for token store");
+        let conn = open_connection(&path, ConnectionOptions::default())?;
         let table_name = table_name.to_string();
 
-        // Create table if not exists
         let create_table_sql = format!(
             "CREATE TABLE IF NOT EXISTS {table_name} (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -255,31 +263,24 @@ impl TokenStore {
                 endpoint TEXT
             )"
         );
-        conn.execute(&create_table_sql, [])
-            .expect("Failed to create token table");
-
-        // Create index on timestamp for efficient range queries
+        conn.execute(&create_table_sql, [])?;
         conn.execute(
             &format!(
                 "CREATE INDEX IF NOT EXISTS idx_{table_name}_timestamp ON {table_name}(timestamp_ns)"
             ),
             [],
-        )
-        .expect("Failed to create timestamp index");
-
-        // Create index on agent for breakdown queries
+        )?;
         conn.execute(
             &format!("CREATE INDEX IF NOT EXISTS idx_{table_name}_agent ON {table_name}(agent)"),
             [],
-        )
-        .expect("Failed to create agent index");
+        )?;
 
-        TokenStore { conn, table_name }
+        Ok(TokenStore { conn, table_name })
     }
 
     /// Get default storage path
     pub fn default_path() -> PathBuf {
-        default_base_path().join("tokens.db")
+        crate::config::default_base_path().join("tokens.db")
     }
 
     /// Insert a token record (unified interface, matches AuditStore)
@@ -498,9 +499,12 @@ impl TokenStore {
         Ok(deleted)
     }
 
-    /// Execute WAL checkpoint to flush WAL data back to the main database file
+    /// Execute WAL checkpoint to flush WAL data back to the main database file.
     pub fn checkpoint(&self) -> anyhow::Result<()> {
-        wal_checkpoint(&self.conn)
+        match checkpoint_truncate(&self.conn)? {
+            CheckpointOutcome::Completed => Ok(()),
+            CheckpointOutcome::Busy => anyhow::bail!("WAL checkpoint remained busy"),
+        }
     }
 }
 
@@ -715,7 +719,7 @@ mod tests {
 
     #[test]
     fn test_token_store() {
-        let mut store = TokenStore::new("/tmp/test_tokens.db");
+        let mut store = TokenStore::new("/tmp/test_tokens.db").unwrap();
 
         let record = TokenRecord::new(1234, "python".to_string(), "openai".to_string(), 100, 50);
         let id = store.add(record).unwrap();
@@ -730,7 +734,7 @@ mod tests {
 
     #[test]
     fn test_token_query() {
-        let mut store = TokenStore::new("/tmp/test_tokens_query.db");
+        let mut store = TokenStore::new("/tmp/test_tokens_query.db").unwrap();
 
         // Add some records
         store
@@ -851,7 +855,7 @@ mod tests {
     #[test]
     fn test_insert_count_all_and_clear() {
         let path = unique_db_path("insert_count_clear");
-        let mut store = TokenStore::new(&path);
+        let mut store = TokenStore::new(&path).unwrap();
         let id = store
             .insert(&make_record(1_000, Some("Agent-A"), 10, 5))
             .unwrap();
@@ -872,13 +876,13 @@ mod tests {
     #[test]
     fn test_custom_table_isolated_from_default_table() {
         let path = unique_db_path("custom_table");
-        let custom = TokenStore::with_table(&path, "custom_tokens");
+        let custom = TokenStore::with_table(&path, "custom_tokens").unwrap();
         custom
             .insert(&make_record(1_000, Some("Agent-A"), 10, 5))
             .unwrap();
         assert_eq!(custom.count(), 1);
 
-        let default_store = TokenStore::new(&path);
+        let default_store = TokenStore::new(&path).unwrap();
         assert_eq!(default_store.count(), 0);
         cleanup_db(&path);
     }
@@ -886,7 +890,7 @@ mod tests {
     #[test]
     fn test_by_time_range_owned_filters_and_orders_desc() {
         let path = unique_db_path("time_range");
-        let store = TokenStore::new(&path);
+        let store = TokenStore::new(&path).unwrap();
         store
             .insert(&make_record(1_000, Some("old"), 1, 1))
             .unwrap();
@@ -907,7 +911,7 @@ mod tests {
     #[test]
     fn test_by_last_hours_returns_recent_rows() {
         let path = unique_db_path("last_hours");
-        let store = TokenStore::new(&path);
+        let store = TokenStore::new(&path).unwrap();
         let now_ns = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .unwrap()
@@ -938,7 +942,7 @@ mod tests {
     #[test]
     fn test_purge_before_deletes_old_records() {
         let path = unique_db_path("purge_before");
-        let store = TokenStore::new(&path);
+        let store = TokenStore::new(&path).unwrap();
         store
             .insert(&make_record(1_000, Some("old"), 1, 1))
             .unwrap();
@@ -956,7 +960,7 @@ mod tests {
     #[test]
     fn test_checkpoint_succeeds() {
         let path = unique_db_path("checkpoint");
-        let store = TokenStore::new(&path);
+        let store = TokenStore::new(&path).unwrap();
         store
             .insert(&make_record(1_000, Some("Agent-A"), 1, 1))
             .unwrap();
@@ -967,7 +971,7 @@ mod tests {
     #[test]
     fn test_query_by_hours_and_compare() {
         let path = unique_db_path("hours_compare");
-        let store = TokenStore::new(&path);
+        let store = TokenStore::new(&path).unwrap();
         let now_ns = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .unwrap()
@@ -1005,7 +1009,7 @@ mod tests {
     #[test]
     fn test_query_by_period_with_compare_and_breakdown() {
         let path = unique_db_path("period_breakdown");
-        let store = TokenStore::new(&path);
+        let store = TokenStore::new(&path).unwrap();
         let (today_start, _) = TimePeriod::Today.time_range();
         let (yesterday_start, _) = TimePeriod::Yesterday.time_range();
 
@@ -1053,7 +1057,7 @@ mod tests {
     #[test]
     fn test_breakdown_falls_back_to_comm_when_agent_missing() {
         let path = unique_db_path("breakdown_comm");
-        let store = TokenStore::new(&path);
+        let store = TokenStore::new(&path).unwrap();
         let (today_start, _) = TimePeriod::Today.time_range();
         store
             .insert(&make_record(today_start + 1_000, None, 10, 5))

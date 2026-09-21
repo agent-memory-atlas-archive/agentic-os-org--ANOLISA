@@ -44,8 +44,16 @@ impl TokenCommand {
     }
 
     fn execute_summary(&self, data_path: &std::path::Path) {
-        // Open token store
-        let store = TokenStore::new(data_path);
+        let store = match TokenStore::new(data_path) {
+            Ok(store) => store,
+            Err(error) => {
+                eprintln!(
+                    "Failed to open token store at {}: {error}",
+                    data_path.display()
+                );
+                return;
+            }
+        };
         let query = agentsight::TokenQuery::new(&store);
 
         // Execute query
